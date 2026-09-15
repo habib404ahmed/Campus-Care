@@ -32,12 +32,35 @@ export type FireType = 'fire' | 'smoke' | 'gas' | 'electrical' | 'other';
 export type PeopleTrappedStatus = 'unknown' | 'yes' | 'no';
 
 export type SecurityCategory =
+  | 'unauthorized_access'
   | 'theft'
   | 'suspicious_activity'
-  | 'harassment'
   | 'vandalism'
-  | 'trespassing'
+  | 'threatening_behavior'
+  | 'harassment'
+  | 'safety_concern'
+  | 'property_issue'
   | 'other';
+
+export type SecurityStatus =
+  | 'pending'
+  | 'acknowledged'
+  | 'assigned'
+  | 'investigating'
+  | 'resolved'
+  | 'closed'
+  | 'cancelled'
+  | 'dismissed';
+
+export type SecurityPriority = IncidentPriority;
+
+export type IncidentTimeOption =
+  | 'just_now'
+  | 'last_hour'
+  | 'today'
+  | 'yesterday'
+  | 'earlier'
+  | 'custom';
 
 export type UnsafeCategory =
   | 'poor_lighting'
@@ -49,6 +72,52 @@ export type UnsafeCategory =
 
 export type UnsafeSeverity = 'low' | 'medium' | 'high';
 export type UnsafeStatus = 'reported' | 'under_review' | 'verified' | 'resolved';
+
+// ── Phase 8 Safety Map & Unsafe Location Types ──────────────────
+export type SafetyConcernType =
+  | 'poor_lighting'
+  | 'isolated_area'
+  | 'unsafe_pathway'
+  | 'construction_hazard'
+  | 'damaged_surface'
+  | 'animal_concern'
+  | 'suspicious_activity'
+  | 'harassment_concern'
+  | 'security_concern'
+  | 'general_safety'
+  | 'other';
+
+export type SafetyTimeOption =
+  | 'always'
+  | 'morning'
+  | 'afternoon'
+  | 'evening'
+  | 'night'
+  | 'specific_time';
+
+export type SafetyFrequency =
+  | 'once'
+  | 'occasionally'
+  | 'frequently'
+  | 'every_day';
+
+export type SafetySeverity = 'low' | 'medium' | 'high' | 'critical';
+
+export type SafetyStatus =
+  | 'reported'
+  | 'reviewing'
+  | 'acknowledged'
+  | 'action_planned'
+  | 'resolved'
+  | 'closed';
+
+export type SafetyTimeFilter = 'all' | 'day' | 'night';
+
+export interface SafetyMapFilter {
+  category: 'all' | SafetyConcernType;
+  time: SafetyTimeFilter;
+  severity: 'all' | SafetySeverity;
+}
 
 export type RideStatus = 'open' | 'full' | 'started' | 'completed' | 'cancelled';
 export type RideRequestStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'completed';
@@ -140,15 +209,23 @@ export interface SecurityReport {
   reported_by: string;
   category: SecurityCategory;
   description: string;
+  incident_time: string;
   latitude?: number | null;
   longitude?: number | null;
   location_name?: string | null;
-  priority: IncidentPriority;
-  status: IncidentStatus;
+  immediate_danger: boolean;
+  anonymous_report: boolean;
+  contact_allowed: boolean;
+  evidence_url?: string | null;
+  priority: SecurityPriority;
+  status: SecurityStatus;
+  assigned_to?: string | null;
+  notes?: string | null;
   created_at: string;
   updated_at: string;
   resolved_at?: string | null;
   reporter?: Profile;
+  assigned_worker?: Profile;
 }
 
 export interface UnsafeLocation {
@@ -165,6 +242,64 @@ export interface UnsafeLocation {
   updated_at: string;
   resolved_at?: string | null;
   reporter?: Profile;
+}
+
+export interface UnsafeLocationReport {
+  id: string;
+  reference_id: string;
+  reported_by: string;
+  concern_type: SafetyConcernType;
+  description: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  location_name: string;
+  unsafe_time: SafetyTimeOption;
+  frequency: SafetyFrequency;
+  severity: SafetySeverity;
+  status: SafetyStatus;
+  photo_path?: string | null;
+  notes?: string | null;
+  assigned_to?: string | null;
+  created_at: string;
+  updated_at: string;
+  resolved_at?: string | null;
+  reporter?: Profile;
+  assigned_worker?: Profile;
+}
+
+export interface UnsafeLocationPayload {
+  reported_by: string;
+  concern_type: SafetyConcernType;
+  description: string;
+  location_name: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  unsafe_time: SafetyTimeOption;
+  frequency: SafetyFrequency;
+  photo_path?: string | null;
+}
+
+export interface SafetyHotspot {
+  id: string;
+  latitude: number;
+  longitude: number;
+  location_name: string;
+  report_count: number;
+  dominant_category: SafetyConcernType;
+  concern_level: SafetySeverity;
+  score: number;
+  last_reported_at: string;
+  time_concerns: {
+    night: number;
+    day: number;
+    always: number;
+  };
+  reports_preview?: Array<{
+    id: string;
+    reference_id: string;
+    concern_type: SafetyConcernType;
+    created_at: string;
+  }>;
 }
 
 export interface Ride {
@@ -344,6 +479,15 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Omit<UnsafeLocation, 'id'>>;
+      };
+      unsafe_location_reports: {
+        Row: UnsafeLocationReport;
+        Insert: Omit<UnsafeLocationReport, 'id' | 'created_at' | 'updated_at'> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<UnsafeLocationReport, 'id'>>;
       };
       rides: {
         Row: Ride;

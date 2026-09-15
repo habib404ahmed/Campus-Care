@@ -63,4 +63,24 @@ export const notificationService = {
       return { error: err instanceof Error ? err : new Error('Failed to mark all notifications as read') };
     }
   },
+
+  /**
+   * Dispatches a notification record
+   */
+  async createNotification(payload: {
+    user_id: string;
+    title: string;
+    message: string;
+    type: 'emergency' | 'security' | 'ride' | 'lost_found' | 'system';
+    reference_id?: string | null;
+    reference_type?: string | null;
+  }): Promise<{ error: Error | null }> {
+    if (!isSupabaseConfigured()) return { error: null };
+    try {
+      const { error } = await supabase.from('notifications').insert(payload);
+      return { error };
+    } catch (err: unknown) {
+      return { error: err instanceof Error ? err : new Error('Failed to create notification') };
+    }
+  },
 };

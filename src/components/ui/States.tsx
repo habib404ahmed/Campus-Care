@@ -48,7 +48,55 @@ export function LoadingState({ message = 'Loading...', className }: LoadingState
   return (
     <div className={cn('flex flex-col items-center justify-center py-16 px-6', className)} role="status" aria-live="polite">
       <div className="w-10 h-10 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mb-4" aria-hidden="true" />
-      <p className="text-sm text-surface-500">{message}</p>
+      <p className="text-sm text-surface-500 font-medium">{message}</p>
+    </div>
+  );
+}
+
+// --- Skeleton Loaders ---
+export function SkeletonCard({ className }: { className?: string }) {
+  return (
+    <div className={cn('card p-5 space-y-3.5', className)} aria-hidden="true">
+      <div className="flex items-center justify-between">
+        <div className="w-10 h-10 rounded-xl skeleton-shimmer" />
+        <div className="w-16 h-5 rounded-md skeleton-shimmer" />
+      </div>
+      <div className="w-24 h-8 rounded-lg skeleton-shimmer" />
+      <div className="w-36 h-4 rounded-md skeleton-shimmer" />
+    </div>
+  );
+}
+
+export function SkeletonList({ count = 3, className }: { count?: number; className?: string }) {
+  return (
+    <div className={cn('space-y-3', className)} aria-hidden="true">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="card p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl skeleton-shimmer flex-shrink-0" />
+          <div className="flex-1 space-y-2">
+            <div className="w-1/3 h-4 rounded skeleton-shimmer" />
+            <div className="w-2/3 h-3 rounded skeleton-shimmer" />
+          </div>
+          <div className="w-16 h-6 rounded-full skeleton-shimmer flex-shrink-0" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function SkeletonDashboard({ className }: { className?: string }) {
+  return (
+    <div className={cn('space-y-6', className)} aria-hidden="true">
+      <div className="h-28 rounded-3xl skeleton-shimmer" />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <SkeletonCard key={i} />
+        ))}
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 h-72 rounded-2xl skeleton-shimmer" />
+        <div className="h-72 rounded-2xl skeleton-shimmer" />
+      </div>
     </div>
   );
 }
@@ -64,15 +112,15 @@ interface ErrorStateProps {
 export function ErrorState({ title = 'Something went wrong', message = 'An error occurred. Please try again.', onRetry, className }: ErrorStateProps) {
   return (
     <div className={cn('flex flex-col items-center justify-center py-16 px-6 text-center', className)} role="alert">
-      <div className="w-16 h-16 rounded-2xl bg-emergency-50 flex items-center justify-center mb-4">
+      <div className="w-16 h-16 rounded-2xl bg-emergency-50 flex items-center justify-center mb-4 border border-emergency-200/60 shadow-sm">
         <span className="text-3xl" aria-hidden="true">⚠️</span>
       </div>
-      <h3 className="text-base font-semibold text-surface-800">{title}</h3>
+      <h3 className="text-base font-bold text-surface-900">{title}</h3>
       <p className="text-sm text-surface-500 mt-1 max-w-xs">{message}</p>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="mt-4 btn-md btn-secondary"
+          className="mt-4 btn-md btn-secondary cursor-pointer"
         >
           Try Again
         </button>

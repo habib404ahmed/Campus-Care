@@ -3,6 +3,7 @@
 // ============================================================
 
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   AlertTriangle, Phone, MapPin, CheckCircle2,
   Clock, Shield, Loader2, XCircle, Stethoscope,
@@ -18,12 +19,19 @@ import { IncidentTimeline } from '../components/emergency/IncidentTimeline';
 import { MapContainer } from '../components/MapContainer';
 import { MedicalEmergencyForm } from '../components/medical/MedicalEmergencyForm';
 import { FireEmergencyForm } from '../components/fire/FireEmergencyForm';
+import { SecurityReportForm } from '../components/security/SecurityReportForm';
+import { SecurityReportCard } from '../components/security/SecurityReportCard';
+import { SecurityReportDetailModal } from '../components/security/SecurityReportDetailModal';
+import { UnsafeLocationForm } from '../components/safety/UnsafeLocationForm';
+import { UnsafeLocationDetailModal } from '../components/safety/UnsafeLocationDetailModal';
 import { useAuth } from '../hooks/useAuth';
 import { emergencyService } from '../lib/services/emergencyService';
 import { medicalService } from '../lib/services/medicalService';
 import { fireService } from '../lib/services/fireService';
+import { securityService } from '../lib/services/securityService';
+import { safetyService } from '../lib/services/safetyService';
 import { useEmergencyRealtime } from '../hooks/useEmergencyRealtime';
-import type { EmergencyIncident, IncidentAssignment, MedicalIncident, FireIncident } from '../types/database';
+import type { EmergencyIncident, IncidentAssignment, MedicalIncident, FireIncident, SecurityReport, UnsafeLocationReport } from '../types/database';
 import { formatRelativeTime } from '../lib/mockData';
 import { cn } from '../lib/utils';
 
@@ -36,16 +44,25 @@ const emergencyContacts = [
 
 export default function EmergencyPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [activeIncident, setActiveIncident] = useState<EmergencyIncident | null>(null);
   const [activeAssignment, setActiveAssignment] = useState<IncidentAssignment | null>(null);
   const [activeMedical, setActiveMedical] = useState<MedicalIncident | null>(null);
   const [activeFire, setActiveFire] = useState<FireIncident | null>(null);
   const [history, setHistory] = useState<EmergencyIncident[]>([]);
+  const [userSecurityReports, setUserSecurityReports] = useState<SecurityReport[]>([]);
+  const [selectedSecurityReport, setSelectedSecurityReport] = useState<SecurityReport | null>(null);
+  const [isSecurityDetailOpen, setIsSecurityDetailOpen] = useState(false);
+  const [userUnsafeReports, setUserUnsafeReports] = useState<UnsafeLocationReport[]>([]);
+  const [selectedUnsafeReport, setSelectedUnsafeReport] = useState<UnsafeLocationReport | null>(null);
+  const [isUnsafeDetailOpen, setIsUnsafeDetailOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
   const [isMedicalModalOpen, setIsMedicalModalOpen] = useState(false);
   const [isFireModalOpen, setIsFireModalOpen] = useState(false);
+  const [isSecurityModalOpen, setIsSecurityModalOpen] = useState(false);
+  const [isUnsafeLocationModalOpen, setIsUnsafeLocationModalOpen] = useState(false);
 
   // Fetch current active emergency & past history
   const fetchEmergencyData = useCallback(async () => {
@@ -78,6 +95,12 @@ export default function EmergencyPage() {
 
       const { data: userHistory } = await emergencyService.getUserEmergencies(user.id);
       setHistory(userHistory.filter((i) => ['resolved', 'cancelled'].includes(i.status)));
+
+      const { data: userSec } = await securityService.getUserSecurityReports(user.id);
+      setUserSecurityReports(userSec);
+
+      const { data: userUnsafe } = await safetyService.getUserUnsafeLocationReports(user.id);
+      setUserUnsafeReports(userUnsafe);
     } catch (err) {
       console.error('Failed to load emergency data:', err);
     } finally {
@@ -422,6 +445,69 @@ export default function EmergencyPage() {
               </Button>
             </div>
           </div>
+
+          {/* Card D: Campus Security Report (Non-urgent safety concerns) */}
+          <div className="md:col-span-3 card p-6 bg-gradient-to-r from-brand-50/80 via-white to-surface-50 border-brand-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <Shield size={28} />
+              </div>
+              <div>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-100 text-brand-800 inline-block mb-1">
+                  Non-Emergency Safety Report
+                </span>
+                <h3 className="text-lg font-black text-surface-900 tracking-tight">
+                  Campus Security Report
+                </h3>
+                <p className="text-surface-600 text-xs max-w-xl leading-relaxed mt-0.5">
+                  Report theft, suspicious activity, vandalism, harassment, or other campus safety concerns.
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="primary"
+              onClick={() => setIsSecurityModalOpen(true)}
+              className="w-full md:w-auto px-6 py-3 text-xs font-bold gap-2 shadow-xs cursor-pointer flex-shrink-0"
+            >
+              <Shield size={15} /> Report Security Concern
+            </Button>
+          </div>
+
+          {/* Card E: Unsafe Location & Safety Map */}
+          <div className="md:col-span-3 card p-6 bg-gradient-to-r from-amber-50/80 via-white to-surface-50 border-amber-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <MapPin size={28} />
+              </div>
+              <div>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 inline-block mb-1">
+                  Community Safety & Hotspots
+                </span>
+                <h3 className="text-lg font-black text-surface-900 tracking-tight">
+                  📍 Unsafe Location & Safety Map
+                </h3>
+                <p className="text-surface-600 text-xs max-w-xl leading-relaxed mt-0.5">
+                  Tell the campus community about places that may need attention. See reported safety concerns and hotspots.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto flex-shrink-0">
+              <Button
+                variant="outline"
+                onClick={() => navigate('/safety-map')}
+                className="w-full sm:w-auto px-4 py-2.5 text-xs font-bold gap-1.5 cursor-pointer"
+              >
+                🗺️ View Safety Map
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => setIsUnsafeLocationModalOpen(true)}
+                className="w-full sm:w-auto px-4 py-2.5 text-xs font-bold gap-1.5 bg-amber-600 hover:bg-amber-700 text-white shadow-xs cursor-pointer"
+              >
+                📍 Report Unsafe Location
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -507,6 +593,87 @@ export default function EmergencyPage() {
         </Card>
       )}
 
+      {/* ── My Security Reports ─────────────────────────────────── */}
+      {userSecurityReports.length > 0 && (
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="section-title flex items-center gap-2">
+              <Shield size={18} className="text-brand-600" /> My Security Reports ({userSecurityReports.length})
+            </h2>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setIsSecurityModalOpen(true)}
+              className="text-xs font-bold gap-1 cursor-pointer"
+            >
+              <Shield size={13} /> New Report
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {userSecurityReports.map((report) => (
+              <SecurityReportCard
+                key={report.id}
+                report={report}
+                onSelect={(r) => {
+                  setSelectedSecurityReport(r);
+                  setIsSecurityDetailOpen(true);
+                }}
+                actionLabel="View Status"
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── My Unsafe Location Reports ──────────────────────────── */}
+      {userUnsafeReports.length > 0 && (
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="section-title flex items-center gap-2">
+              <MapPin size={18} className="text-amber-600" /> My Unsafe Location Reports ({userUnsafeReports.length})
+            </h2>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setIsUnsafeLocationModalOpen(true)}
+              className="text-xs font-bold gap-1 cursor-pointer"
+            >
+              <MapPin size={13} /> Report Hazard
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {userUnsafeReports.map((report) => (
+              <div
+                key={report.id}
+                onClick={() => {
+                  setSelectedUnsafeReport(report);
+                  setIsUnsafeDetailOpen(true);
+                }}
+                className="card p-4 border border-surface-200 hover:border-surface-300 hover:shadow-xs transition-all cursor-pointer bg-white rounded-2xl"
+              >
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <span className="font-mono text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                    {report.reference_id}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold capitalize bg-surface-100 text-surface-700 border border-surface-200">
+                    {report.status.replace(/_/g, ' ')}
+                  </span>
+                </div>
+                <h4 className="text-xs font-black text-surface-900 truncate">
+                  {report.location_name}
+                </h4>
+                <p className="text-[11px] text-surface-500 capitalize mt-0.5">
+                  {report.concern_type.replace(/_/g, ' ')} • {report.unsafe_time}
+                </p>
+                <p className="text-[11px] text-surface-600 line-clamp-2 mt-2 bg-surface-50 p-2 rounded-xl border border-surface-100">
+                  {report.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── Medical Emergency Request Modal ──────────────────────── */}
       <MedicalEmergencyForm
         isOpen={isMedicalModalOpen}
@@ -519,6 +686,44 @@ export default function EmergencyPage() {
         isOpen={isFireModalOpen}
         onClose={() => setIsFireModalOpen(false)}
         onEmergencySubmitted={fetchEmergencyData}
+      />
+
+      {/* ── Security Report Creation Modal ──────────────────────── */}
+      <SecurityReportForm
+        isOpen={isSecurityModalOpen}
+        onClose={() => setIsSecurityModalOpen(false)}
+        onSuccess={fetchEmergencyData}
+      />
+
+      {/* ── Security Report Detail Modal ────────────────────────── */}
+      <SecurityReportDetailModal
+        report={selectedSecurityReport}
+        isOpen={isSecurityDetailOpen}
+        onClose={() => {
+          setIsSecurityDetailOpen(false);
+          setSelectedSecurityReport(null);
+        }}
+        onStatusUpdated={fetchEmergencyData}
+        isWorkerOrAdmin={false}
+      />
+
+      {/* ── Unsafe Location Form Modal ─────────────────────────── */}
+      <UnsafeLocationForm
+        isOpen={isUnsafeLocationModalOpen}
+        onClose={() => setIsUnsafeLocationModalOpen(false)}
+        onSuccess={fetchEmergencyData}
+      />
+
+      {/* ── Unsafe Location Detail Modal ───────────────────────── */}
+      <UnsafeLocationDetailModal
+        report={selectedUnsafeReport}
+        isOpen={isUnsafeDetailOpen}
+        onClose={() => {
+          setIsUnsafeDetailOpen(false);
+          setSelectedUnsafeReport(null);
+        }}
+        onStatusUpdated={fetchEmergencyData}
+        isAuthorizedStaff={false}
       />
     </DashboardLayout>
   );

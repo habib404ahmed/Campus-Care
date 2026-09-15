@@ -50,20 +50,20 @@ export function GlobalSOSButton({ className, variant = 'fab' }: GlobalSOSButtonP
           aria-label="Activate Emergency SOS"
           id="global-sos-fab"
           className={cn(
-            'fixed bottom-20 right-4 z-40',
-            'lg:bottom-6 lg:right-6',
+            'fixed bottom-24 right-4 z-40',
+            'lg:bottom-8 lg:right-8',
             'w-16 h-16 rounded-full',
-            'bg-emergency-600 text-white',
+            'bg-gradient-to-tr from-rose-700 via-red-600 to-rose-500 text-white',
             'flex flex-col items-center justify-center gap-0.5',
-            'shadow-xl shadow-emergency-600/40',
-            'hover:bg-emergency-700 active:scale-95 transition-all duration-150',
-            'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emergency-400',
-            'animate-sos-pulse cursor-pointer',
+            'shadow-2xl shadow-rose-600/50 ring-4 ring-rose-500/25',
+            'hover:scale-105 hover:shadow-rose-600/70 active:scale-95 transition-all duration-200',
+            'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-rose-400',
+            'animate-sos-pulse cursor-pointer group',
             className
           )}
         >
-          <AlertTriangle size={22} aria-hidden="true" />
-          <span className="text-[10px] font-black tracking-wider leading-none">SOS</span>
+          <AlertTriangle size={22} className="transition-transform group-hover:scale-110" aria-hidden="true" />
+          <span className="text-[10px] font-black tracking-widest leading-none">SOS</span>
         </button>
       ) : (
         <button
@@ -72,12 +72,12 @@ export function GlobalSOSButton({ className, variant = 'fab' }: GlobalSOSButtonP
           aria-label="Activate Emergency SOS"
           id="inline-sos-btn"
           className={cn(
-            'btn-danger btn-md gap-2 shadow-lg shadow-emergency-600/30 animate-sos-pulse cursor-pointer',
+            'btn-danger btn-md gap-2 shadow-lg shadow-rose-600/35 animate-sos-pulse cursor-pointer hover:scale-[1.02] active:scale-95',
             className
           )}
         >
           <AlertTriangle size={18} aria-hidden="true" />
-          <span className="font-extrabold tracking-wide">🚨 ACTIVATE SOS</span>
+          <span className="font-black tracking-wide">🚨 ACTIVATE SOS</span>
         </button>
       )}
 

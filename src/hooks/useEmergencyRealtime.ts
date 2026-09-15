@@ -22,7 +22,12 @@ export function useEmergencyRealtime(onIncidentChange?: () => void) {
     };
 
     const handleStorage = (e: StorageEvent) => {
-      if (e.key === 'campus_care_demo_emergencies' || e.key === 'campus_care_demo_assignments') {
+      if (
+        e.key === 'campus_care_demo_emergencies' ||
+        e.key === 'campus_care_demo_assignments' ||
+        e.key === 'campus_care_demo_security_reports' ||
+        e.key === 'campus_care_demo_unsafe_locations'
+      ) {
         if (callbackRef.current) {
           callbackRef.current();
         }
@@ -31,6 +36,8 @@ export function useEmergencyRealtime(onIncidentChange?: () => void) {
 
     window.addEventListener('campus_care_emergency_sync', handleCustomSync);
     window.addEventListener('campus_care_assignment_sync', handleCustomSync);
+    window.addEventListener('campus_care_security_sync', handleCustomSync);
+    window.addEventListener('campus_care_unsafe_location_sync', handleCustomSync);
     window.addEventListener('storage', handleStorage);
 
     // 2. If Supabase is configured, subscribe to realtime postgres changes
@@ -39,6 +46,8 @@ export function useEmergencyRealtime(onIncidentChange?: () => void) {
       return () => {
         window.removeEventListener('campus_care_emergency_sync', handleCustomSync);
         window.removeEventListener('campus_care_assignment_sync', handleCustomSync);
+        window.removeEventListener('campus_care_security_sync', handleCustomSync);
+        window.removeEventListener('campus_care_unsafe_location_sync', handleCustomSync);
         window.removeEventListener('storage', handleStorage);
       };
     }
@@ -59,6 +68,20 @@ export function useEmergencyRealtime(onIncidentChange?: () => void) {
           if (callbackRef.current) callbackRef.current();
         }
       )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'security_reports' },
+        () => {
+          if (callbackRef.current) callbackRef.current();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'unsafe_location_reports' },
+        () => {
+          if (callbackRef.current) callbackRef.current();
+        }
+      )
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
           setIsConnected(true);
@@ -70,6 +93,8 @@ export function useEmergencyRealtime(onIncidentChange?: () => void) {
     return () => {
       window.removeEventListener('campus_care_emergency_sync', handleCustomSync);
       window.removeEventListener('campus_care_assignment_sync', handleCustomSync);
+      window.removeEventListener('campus_care_security_sync', handleCustomSync);
+      window.removeEventListener('campus_care_unsafe_location_sync', handleCustomSync);
       window.removeEventListener('storage', handleStorage);
       supabase.removeChannel(channel);
     };

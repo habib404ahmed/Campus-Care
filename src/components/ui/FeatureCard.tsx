@@ -82,20 +82,21 @@ export function FeatureCard({ emoji, title, description, color = 'brand', onClic
 interface QuickActionCardProps {
   emoji: string;
   label: string;
+  description?: string;
   color?: 'emergency' | 'warning' | 'safe' | 'info' | 'brand' | 'neutral';
   onClick?: () => void;
   className?: string;
 }
 
-export function QuickActionCard({ emoji, label, color = 'brand', onClick, className }: QuickActionCardProps) {
+export function QuickActionCard({ emoji, label, description, color = 'brand', onClick, className }: QuickActionCardProps) {
   const colors = colorConfig[color];
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        'flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all duration-200 w-full',
-        'active:scale-95 cursor-pointer',
+        'flex flex-col items-center text-center p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 w-full group shadow-sm',
+        'hover:-translate-y-1 hover:shadow-card-hover active:scale-[0.98] cursor-pointer',
         colors.bg,
         colors.border,
         colors.hover,
@@ -103,10 +104,16 @@ export function QuickActionCard({ emoji, label, color = 'brand', onClick, classN
       )}
       aria-label={label}
     >
-      <span className={cn('w-12 h-12 rounded-xl flex items-center justify-center text-2xl', colors.emoji)}>
+      <span className={cn(
+        'w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-1 shadow-sm transition-transform duration-200 group-hover:scale-110',
+        colors.emoji
+      )}>
         {emoji}
       </span>
-      <span className={cn('text-xs font-semibold leading-tight text-center', colors.title)}>{label}</span>
+      <span className={cn('text-xs font-bold leading-snug', colors.title)}>{label}</span>
+      {description && (
+        <span className="text-[10px] text-surface-500 line-clamp-1 mt-0.5 leading-tight">{description}</span>
+      )}
     </button>
   );
 }

@@ -25,7 +25,7 @@ import SecurityPage from '../pages/SecurityPage';
 import EmergencyPage from '../pages/EmergencyPage';
 import RidesPage from '../pages/RidesPage';
 import LostFoundPage from '../pages/LostFoundPage';
-import MapPage from '../pages/MapPage';
+import SafetyMapPage from '../pages/SafetyMapPage';
 import NotificationsPage from '../pages/NotificationsPage';
 import ProfilePage from '../pages/ProfilePage';
 
@@ -48,7 +48,8 @@ export default function AppRouter() {
             <Route path="/emergency" element={<EmergencyPage />} />
             <Route path="/rides" element={<RidesPage />} />
             <Route path="/lost-found" element={<LostFoundPage />} />
-            <Route path="/map" element={<MapPage />} />
+            <Route path="/safety-map" element={<SafetyMapPage />} />
+            <Route path="/map" element={<SafetyMapPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/worker" element={<Navigate to="/dashboard" replace />} />
