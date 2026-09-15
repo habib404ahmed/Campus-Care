@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-surface-200;
+  }
+  
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-surface-50 text-surface-900 font-sans antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
+  }
+}
+
+@layer components {
+  /* ---- Buttons ---- */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-semibold rounded-xl
+           transition-all duration-150 focus-visible:ring-2 focus-visible:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed select-none cursor-pointer;
+  }
+  .btn-sm  { @apply btn px-3 py-1.5 text-sm; }
+  .btn-md  { @apply btn px-4 py-2.5 text-sm; }
+  .btn-lg  { @apply btn px-6 py-3 text-base; }
+  .btn-xl  { @apply btn px-8 py-4 text-lg; }
+
+  .btn-primary {
+    @apply bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800
+           focus-visible:ring-brand-500 shadow-sm hover:shadow;
+  }
+  .btn-secondary {
+    @apply bg-surface-100 text-surface-700 hover:bg-surface-200 active:bg-surface-300
+           focus-visible:ring-surface-400 border border-surface-200;
+  }
+  .btn-danger {
+    @apply bg-emergency-600 text-white hover:bg-emergency-700 active:bg-emergency-800
+           focus-visible:ring-emergency-500 shadow-sm hover:shadow;
+  }
+  .btn-success {
+    @apply bg-safe-600 text-white hover:bg-safe-700 active:bg-safe-800
+           focus-visible:ring-safe-500 shadow-sm hover:shadow;
+  }
+  .btn-warning {
+    @apply bg-warning-500 text-white hover:bg-warning-600 active:bg-warning-700
+           focus-visible:ring-warning-400 shadow-sm hover:shadow;
+  }
+  .btn-ghost {
+    @apply text-surface-600 hover:bg-surface-100 active:bg-surface-200
+           focus-visible:ring-surface-300;
+  }
+  .btn-outline {
+    @apply border border-brand-500 text-brand-600 hover:bg-brand-50 active:bg-brand-100
+           focus-visible:ring-brand-400;
+  }
+
+  /* ---- Cards ---- */
+  .card {
+    @apply bg-white rounded-2xl border border-surface-200 shadow-card;
+  }
+  .card-hover {
+    @apply card transition-all duration-200 hover:shadow-card-hover hover:-translate-y-0.5 cursor-pointer;
+  }
+  .card-p { @apply card p-6; }
+
+  /* ---- Inputs ---- */
+  .input {
+    @apply w-full px-4 py-2.5 rounded-xl border border-surface-300 bg-white text-surface-900
+           placeholder:text-surface-400 text-sm
+           focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent
+           transition-all duration-150;
+  }
+  .input-error {
+    @apply border-emergency-400 focus:ring-emergency-400;
+  }
+
+  /* ---- Badges ---- */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-emergency { @apply badge bg-emergency-100 text-emergency-700; }
+  .badge-warning   { @apply badge bg-warning-100 text-warning-700; }
+  .badge-safe      { @apply badge bg-safe-100 text-safe-700; }
+  .badge-info      { @apply badge bg-info-100 text-info-700; }
+  .badge-neutral   { @apply badge bg-surface-100 text-surface-600; }
+
+  /* ---- Sidebar nav item ---- */
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
+           text-surface-600 transition-all duration-150
+           hover:bg-surface-100 hover:text-surface-900;
+  }
+  .nav-item-active {
+    @apply nav-item bg-brand-50 text-brand-700 hover:bg-brand-100 hover:text-brand-800;
+  }
+
+  /* ---- Stat cards ---- */
+  .stat-card {
+    @apply card p-5 flex flex-col gap-1;
+  }
+
+  /* ---- Page container ---- */
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ---- Section title ---- */
+  .section-title {
+    @apply text-xl font-bold text-surface-900;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand-600 to-brand-400 bg-clip-text text-transparent;
+  }
+  .text-gradient-emergency {
+    @apply bg-gradient-to-r from-emergency-600 to-emergency-400 bg-clip-text text-transparent;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
